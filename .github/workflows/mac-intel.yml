@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-    # This checks if "#go" is anywhere in the commit message
     if: contains(github.event.head_commit.message, '#go')
     runs-on: macos-latest
     
@@ -34,14 +33,21 @@ jobs:
         run: npm run tauri build -- --target x86_64-apple-darwin
         env:
           GITHUB_TOKEN: ${{ secrets.CLASSIC_ACCESS_TOKEN }}
+
+      # --- LOGGING STEP ---
+      - name: List build artifacts for debugging
+        if: always() # Runs even if the build fails
+        run: |
+          echo "Listing all generated bundles:"
+          find src-tauri/target/x86_64-apple-darwin/release/bundle -maxdepth 3 -not -path '*/.*'
           
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          # Since you aren't pushing a tag, we generate one from the SHA
           tag_name: "release-${{ github.sha }}"
+          fail_on_unmatched_files: true 
           files: |
-            src-tauri/target/x86_64-apple-darwin/release/bundle/macos/*.dmg
+            src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg
             src-tauri/target/x86_64-apple-darwin/release/bundle/macos/*.app.tar.gz
           generate_release_notes: true
         env:
