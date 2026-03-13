@@ -34,21 +34,27 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.CLASSIC_ACCESS_TOKEN }}
 
-      # --- LOGGING STEP ---
-      - name: List build artifacts for debugging
-        if: always() # Runs even if the build fails
+      - name: Get version from package.json
+        id: package_version
         run: |
-          echo "Listing all generated bundles:"
-          find src-tauri/target/x86_64-apple-darwin/release/bundle -maxdepth 3 -not -path '*/.*'
+          VERSION=$(node -p "require('./package.json').version")
+          echo "APP_VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: List build artifacts for debugging
+        if: always()
+        run: |
+          echo "Searching for bundles in target directory:"
+          find src-tauri/target/x86_64-apple-darwin/release/bundle -maxdepth 4 -name "*.dmg" -o -name "*.tar.gz"
           
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "release-${{ github.sha }}"
-          fail_on_unmatched_files: true 
+          # Uses v0.1.0 style tags
+          tag_name: "v${{ steps.package_version.outputs.APP_VERSION }}"
+          fail_on_unmatched_files: false # Set to false to allow partial uploads if one extension is missing
           files: |
-            src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg
-            src-tauri/target/x86_64-apple-darwin/release/bundle/macos/*.app.tar.gz
+            src-tauri/target/x86_64-apple-darwin/release/bundle/**/*.dmg
+            src-tauri/target/x86_64-apple-darwin/release/bundle/**/*.app.tar.gz
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.CLASSIC_ACCESS_TOKEN }}
