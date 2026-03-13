@@ -1,18 +1,21 @@
 # pilotfish
 
 Template created! To get started run:
-  cd pilotfish
-  npm install
- 
+
+```bash
+cd pilotfish
+npm install
+```
 
 For Desktop development, run:
-  npm run tauri dev
 
+```bash
+npm run tauri dev
+```
 
+# Tauri + React + TypeScript
 
-# Tauri + React + Typescript
-
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+This template should help get you started developing with Tauri, React and TypeScript in Vite.
 
 ## Recommended IDE Setup
 
