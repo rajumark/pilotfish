@@ -1,0 +1,48 @@
+name: Release Mac Intel
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    # This checks if "#go" is anywhere in the commit message
+    if: contains(github.event.head_commit.message, '#go')
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-apple-darwin
+          
+      - name: Build Tauri app for Mac Intel
+        run: npm run tauri build -- --target x86_64-apple-darwin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          # Since you aren't pushing a tag, we generate one from the SHA
+          tag_name: "release-${{ github.sha }}"
+          files: |
+            src-tauri/target/x86_64-apple-darwin/release/bundle/macos/*.dmg
+            src-tauri/target/x86_64-apple-darwin/release/bundle/macos/*.app.tar.gz
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
