@@ -33,7 +33,7 @@ jobs:
       - name: Build Tauri app for Mac Intel
         run: npm run tauri build -- --target x86_64-apple-darwin
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CLASSIC_ACCESS_TOKEN }}
           
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -45,4 +45,4 @@ jobs:
             src-tauri/target/x86_64-apple-darwin/release/bundle/macos/*.app.tar.gz
           generate_release_notes: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CLASSIC_ACCESS_TOKEN }}
